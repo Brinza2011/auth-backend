@@ -1,6 +1,13 @@
-def main():
-    print("Hello from auth!")
+from fastapi import FastAPI
+from src.api import router
+from src.database.db import init_db
+
+app = FastAPI()
+
+app.include_router(router)
 
 
-if __name__ == "__main__":
-    main()
+@app.on_event("startup")
+async def startup():
+    await init_db()
+
