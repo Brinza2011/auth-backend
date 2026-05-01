@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
 
+from src.exceptions.user_not_found import UserNotFoundException
 from src.exceptions.user_already_exist import UserAlreadyExistsException
-from src.dependencies.user import get_user_svc
-from src.dto.user import LoginRequest, RegisterRequest, UserResponse
+from src.dto.user import LoginRequestDto, RegisterRequestDto, UserResponseDto
 from src.service.sign_up import SignupService
 from src.dependencies.auth import get_signup_svc
 
@@ -21,9 +21,9 @@ class RegisterResponseDto(BaseModel):
     user_id: int
 
 
-@auth_router.post("/register", response_model=UserResponse)
+@auth_router.post("/register", response_model=UserResponseDto)
 async def register(
-    data: RegisterRequest,
+    data: RegisterRequestDto,
     svc: SignupService = Depends(get_signup_svc)
 ):
 
@@ -34,7 +34,7 @@ async def register(
             email=data.email
         )
 
-        return UserResponse(
+        return UserResponseDto(
             id=user.id,
             username=user.username,
             email=user.email
@@ -51,13 +51,21 @@ async def register(
 
 @auth_router.post("/login")
 async def login(
-    data: LoginRequest,
+    data: LoginRequestDto,
     svc: SignupService = Depends(get_signup_svc)
 ):
+    try:
+        user = await svc.login(email=data.email)
 
-    user = await svc.login(email=data.email)
+        return {
+            "message": "пользователь залогинился",
+            "user_id": user.id
+        }
+    
+    except UserNotFoundException as a:
 
-    return {
-        "message": "пользователь залогинился",
-        "user_id": user.id
-    }
+        raise HTTPException(
+            status_code=409,
+            detail=str(a)
+        )
+

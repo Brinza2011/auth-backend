@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from src.database.db import SessionType
-from src.models.user import User
+from src.models.user import UserModel
 
 class UserRepository:
     def __init__(self, session: SessionType) -> None:
@@ -8,7 +8,7 @@ class UserRepository:
 
 
     async def find_all(self):
-        stmt = select(User)
+        stmt = select(UserModel)
         result = await self.session.execute(stmt)
         return result.scalars().all()
     
@@ -18,9 +18,9 @@ class UserRepository:
         username: str,
         password: str,
         email: str
-    ) -> User:
+    ) -> UserModel:
 
-        user = User(
+        user = UserModel(
             username=username,
             password=password,
             email=email
@@ -35,10 +35,10 @@ class UserRepository:
     async def get_by_username(
         self,
         username: str
-    ) -> User | None:
+    ) -> UserModel | None:
 
-        stmt = select(User).where(
-            User.username == username
+        stmt = select(UserModel).where(
+            UserModel.username == username
         )
 
         result = await self.session.execute(stmt)
@@ -46,10 +46,10 @@ class UserRepository:
         return result.scalar_one_or_none()
     
 
-    async def get_by_email(self, email: str) -> User | None:
+    async def get_by_email(self, email: str) -> UserModel | None:
 
-        stmt = select(User).where(
-            User.email == email
+        stmt = select(UserModel).where(
+            UserModel.email == email
         )
 
         result = await self.session.execute(stmt)
@@ -61,8 +61,8 @@ class UserRepository:
 
     async def get_by_email(self, email: str):
 
-        stmt = select(User).where(
-        User.email == email
+        stmt = select(UserModel).where(
+        UserModel.email == email
     )
 
         result = await self.session.execute(stmt)

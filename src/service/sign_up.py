@@ -1,8 +1,9 @@
 
 
 from http.client import HTTPException
+from src.exceptions.user_not_found import UserNotFoundException
 from src.exceptions.user_already_exist import UserAlreadyExistsException
-from src.models.user import User
+from src.models.user import UserModel
 from src.repository.user import UserRepository
 
 
@@ -16,7 +17,7 @@ class SignupService:
         username: str,
         password: str,
         email: str
-    ) -> User:
+    ) -> UserModel:
         
         existing_email = await self.repo.get_by_email(email)
 
@@ -49,9 +50,8 @@ class SignupService:
         user = await self.repo.get_by_email(email)
 
         if not user:
-            raise HTTPException(
-                status_code=404,
-                detail="User not found"
+            raise UserNotFoundException(
+                "User not found"
             )
 
         return user
