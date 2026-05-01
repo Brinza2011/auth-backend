@@ -5,12 +5,17 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def get_user_svc(
-    session: AsyncSession = Depends(get_session)
-) -> UserService:
-    """FastAPI dependency для UserService"""
+async def get_user_svc() -> UserService:
+    async for session in get_session():
+        repo = UserRepository(session)
+        svc = UserService(repo)
+        return svc
+    
 
-    repo = UserRepository(session)
-    svc = UserService(repo)
+async def get_user_svc() -> UserService:
 
-    return svc
+    async with get_session() as session:
+        repo = UserRepository(session)
+        svc = UserService(repo)
+
+        return svc

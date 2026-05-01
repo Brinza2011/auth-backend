@@ -1,0 +1,43 @@
+
+
+from src.exceptions.user_already_exist import UserAlreadyExistsException
+from src.models.user import User
+from src.repository.user import UserRepository
+
+
+class SignupService:
+    def __init__(self, repo: UserRepository) -> None:
+        self.repo = repo
+
+
+    async def register_user(
+        self,
+        username: str,
+        password: str,
+        email: str
+    ) -> User:
+        
+        existing_email = await self.repo.get_by_email(email)
+
+        if existing_email:
+            raise UserAlreadyExistsException(
+                "User with this email already exists"
+            )
+        
+        
+        existing_username = await self.repo.get_by_username(username)
+
+        if existing_username:
+            raise UserAlreadyExistsException(
+                "User with this username already exists"
+            )
+        
+        
+        # Создаём пользователя
+        user = await self.repo.create_user(
+            username,
+            password,
+            email
+        )
+
+        return user
