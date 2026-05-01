@@ -12,7 +12,8 @@ async def get_users(service: UserService = Depends(get_user_svc)):
     return [
         {
             "id": user.id,
-            "name": user.username
+            "name": user.username,
+            "email": user.email
         }
         for user in users
     ]

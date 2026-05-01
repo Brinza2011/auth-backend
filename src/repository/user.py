@@ -57,3 +57,14 @@ class UserRepository:
         user = result.scalar_one_or_none()
 
         return user
+    
+
+    async def get_by_email(self, email: str):
+
+        stmt = select(User).where(
+        User.email == email
+    )
+
+        result = await self.session.execute(stmt)
+
+        return result.scalar_one_or_none()

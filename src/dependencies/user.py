@@ -10,12 +10,3 @@ async def get_user_svc() -> UserService:
         repo = UserRepository(session)
         svc = UserService(repo)
         return svc
-    
-
-async def get_user_svc() -> UserService:
-
-    async with get_session() as session:
-        repo = UserRepository(session)
-        svc = UserService(repo)
-
-        return svc

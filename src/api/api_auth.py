@@ -3,7 +3,7 @@ from pydantic import BaseModel, EmailStr
 
 from src.exceptions.user_already_exist import UserAlreadyExistsException
 from src.dependencies.user import get_user_svc
-from src.dto.user import RegisterRequest, UserResponse
+from src.dto.user import LoginRequest, RegisterRequest, UserResponse
 from src.service.sign_up import SignupService
 from src.dependencies.auth import get_signup_svc
 
@@ -48,3 +48,16 @@ async def register(
         )
 
 
+
+@auth_router.post("/login")
+async def login(
+    data: LoginRequest,
+    svc: SignupService = Depends(get_signup_svc)
+):
+
+    user = await svc.login(email=data.email)
+
+    return {
+        "message": "пользователь залогинился",
+        "user_id": user.id
+    }
