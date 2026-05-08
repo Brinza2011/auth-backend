@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
 
+from src.dependencies.jwt import get_jwt_service
+from src.service.jwt import JWTPayload, JWTService
 from src.exceptions.user_not_found import UserNotFoundException
 from src.exceptions.user_already_exist import UserAlreadyExistsException
 from src.dto.user import LoginRequestDto, RegisterRequestDto, UserResponseDto
@@ -52,14 +54,18 @@ async def register(
 @auth_router.post("/login")
 async def login(
     data: LoginRequestDto,
-    svc: SignupService = Depends(get_signup_svc)
+    svc: SignupService = Depends(get_signup_svc),
+    jwt_svc: JWTService = Depends(get_jwt_service)
 ):
     try:
         user = await svc.login(email=data.email)
 
+        payload: JWTPayload = {"user_id": 1, "role": "admin"}
+        token = jwt_svc.encode_token(payload)
         return {
             "message": "пользователь залогинился",
-            "user_id": user.id
+            "user_id": user.id,
+            "token": token
         }
     
     except UserNotFoundException as a:

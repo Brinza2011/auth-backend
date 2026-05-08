@@ -1,14 +1,20 @@
-from src.database.db import get_session
-from src.repository.user import UserRepository
 import asyncio
 
+from src.dependencies.jwt import get_jwt_service
+from src.service.jwt import JWTPayload, JWTService
 
-async def get_user_repo():
-    async for session in get_session():
-        repo = UserRepository(session=session)
 
-        print([user.email for user in await repo.find_all()])
+async def main():
+    token_svc: JWTService = await get_jwt_service()
+
+    payload: JWTPayload = {"user_id": 1, "role": "admin"}
+    token = token_svc.encode_token(payload)
+
+    print(token)
+
+    decoded_payload = token_svc.decode_token(token)
+    print(decoded_payload)
 
 
 if __name__ == "__main__":
-    asyncio.run(get_user_repo())
+    asyncio.run(main())
