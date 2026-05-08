@@ -1,4 +1,4 @@
-from src.config.auth_config import JWT_ALGORITHM, JWT_SECRET_KEY
+from src.config.auth_config import  JWT_ALGORITHM, JWT_SECRET_KEY
 from src.service.jwt import JWTService
 
 
