@@ -2,6 +2,7 @@ import asyncio
 
 from src.dependencies.token import get_token_service
 from src.dependencies.jwt import get_jwt_service
+from src.dependencies.token import get_token_service
 from src.service.jwt import JWTPayload, JWTService
 
 
@@ -15,7 +16,6 @@ async def main():
 
     # decoded_payload = token_svc.decode_token(token)
     # print(decoded_payload)
-
     jwt_svc = await get_jwt_service()
     token_svc = await get_token_service()
     payload: JWTPayload = {"sub": "1", "role": "admin", "exp": None}
