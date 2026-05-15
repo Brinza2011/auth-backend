@@ -14,4 +14,5 @@ class UserResponseDto(BaseModel):
 
 
 class LoginRequestDto(BaseModel):
+    password: str
     email: EmailStr
