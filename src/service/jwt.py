@@ -16,14 +16,17 @@ class JWTService:
         self.algorithm = algorithm
 
     def encode_token(self, payload: JWTPayload) -> str:
-        if not payload["exp"]:
+        if "exp" not in payload:
             payload["exp"] = 5
-
         exp = datetime.now(UTC) + timedelta(minutes=payload["exp"])
 
-        data = {"sub": payload["sub"], "role": payload["role"], "exp": exp}
-
+        data = {
+        "sub": str(payload["sub"]),
+        "role": payload["role"],
+        "exp": exp
+        }
         return jwt.encode(data, self.secret_key, algorithm="HS256")
+
 
     def decode_token(self, token: str) -> JWTPayload:
         try:

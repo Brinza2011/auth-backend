@@ -7,9 +7,10 @@ from src.service.token import TokenService
 from src.dependencies.jwt import get_jwt_service
 from src.service.jwt import JWTPayload, JWTService
 from src.exceptions.user_not_found import UserNotFoundException
-from src.dto.user import LoginRequestDto, UserResponseDto
+from src.dto.user import AuthResponseDto, LoginRequestDto, UserResponseDto
 from src.service.sign_up import SignupService
 from src.dependencies.auth import get_signup_svc
+
 
 auth_router = APIRouter(prefix="/auth")
 
@@ -26,29 +27,38 @@ class RegisterResponseDto(BaseModel):
     user_id: int
 
 
-@auth_router.post("/register", response_model=UserResponseDto)
+@auth_router.post("/register", response_model=AuthResponseDto)
 async def register(
     data: RegisterRequestDto,
     svc: SignupService = Depends(get_signup_svc),
-    token_svc: TokenService = Depends(get_token_service)
+    token_svc: TokenService = Depends(get_token_service),
+    jwt_svc: JWTService = Depends(get_jwt_service)
 ):
 
     try:
-                
-        payload: JWTPayload = {"sub": 1, "role": "admin"}
-        access_token = token_svc.access_token(payload) 
-        refresh_token = token_svc.refresh_token(payload)
-
         user = await svc.register_user(
             username=data.username,
             password=data.password,
             email=data.email
         )
-        return {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "user": user
-        }
+
+        payload: JWTPayload = {"sub": user.id, "role": user.role}
+        access_token = token_svc.access_token(payload) 
+        refresh_token = token_svc.refresh_token(payload)
+
+        a = jwt_svc.encode_token(payload)
+
+        print(jwt_svc.decode_token(a))
+
+        return AuthResponseDto(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            user=UserResponseDto(
+                id=user.id,
+                username=user.username,
+                email=user.email
+            )
+        )
 
     except UserAlreadyExistsException as e:
 
@@ -76,10 +86,11 @@ async def login(
                 detail="Неправильный пароль"
             )
 
-        payload: JWTPayload = {
-            "sub": user.id,
-            "role": "admin"
-        }
+        payload: JWTPayload = {"sub": user.id,"role": user.role}
+
+        a = jwt_svc.encode_token(payload)
+
+        print(jwt_svc.decode_token(a))
 
         access_token = token_svc.access_token(payload)
         refresh_token = token_svc.refresh_token(payload)

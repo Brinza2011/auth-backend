@@ -16,3 +16,9 @@ class UserResponseDto(BaseModel):
 class LoginRequestDto(BaseModel):
     password: str
     email: EmailStr
+
+
+class AuthResponseDto(BaseModel):
+    access_token: str
+    refresh_token: str
+    user: UserResponseDto
