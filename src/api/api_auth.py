@@ -86,10 +86,11 @@ async def login(
                 detail="Неправильный пароль"
             )
 
-        payload: JWTPayload = {
-            "sub": user.id,
-            "role": "admin"
-        }
+        payload: JWTPayload = {"sub": user.id,"role": user.role}
+
+        a = jwt_svc.encode_token(payload)
+
+        print(jwt_svc.decode_token(a))
 
         access_token = token_svc.access_token(payload)
         refresh_token = token_svc.refresh_token(payload)
