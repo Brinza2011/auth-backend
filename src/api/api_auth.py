@@ -1,20 +1,15 @@
+import re
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr, Field, field_validator
-import re
-from src.exceptions.user_already_exist import UserAlreadyExistsException
-from src.dependencies.token import get_token_service
-from src.service.token import TokenService
-from src.dependencies.jwt import get_jwt_service
-from src.service.jwt import JWTPayload, JWTService
-from src.exceptions.user_not_found import UserNotFoundException
-from src.dto.user import AuthResponseDto, LoginRequestDto, UserResponseDto
-from src.service.sign_up import SignupService
+
 from src.dependencies.auth import get_signup_svc
 from src.dependencies.jwt import get_jwt_service
 from src.dependencies.token import get_token_service
 from src.dto.user import AuthResponseDto, LoginRequestDto, UserResponseDto
 from src.exceptions.user_already_exist import UserAlreadyExistsException
 from src.exceptions.user_not_found import UserNotFoundException
+from src.middelwares.auth import auth_middleware
 from src.service.jwt import JWTPayload, JWTService
 from src.service.sign_up import SignupService
 from src.service.token import TokenService
@@ -38,24 +33,17 @@ class RegisterRequestDto(BaseModel):
         uppercases = re.findall(r"[A-Z]", value)
 
         if len(uppercases) < 2:
-            raise ValueError(
-                "Password must contain at least 2 uppercase letters"
-            )
+            raise ValueError("Password must contain at least 2 uppercase letters")
 
         # минимум 1 цифра
         if not re.search(r"\d", value):
-            raise ValueError(
-                "Password must contain at least 1 number"
-            )
+            raise ValueError("Password must contain at least 1 number")
 
         # минимум 1 буква
         if not re.search(r"[a-zA-Z]", value):
-            raise ValueError(
-                "Password must contain letters"
-            )
+            raise ValueError("Password must contain letters")
 
         return value
-    
 
 
 class RegisterResponseDto(BaseModel):
@@ -95,7 +83,10 @@ async def register(
         raise HTTPException(status_code=409, detail=str(e))
 
 
-@auth_router.post("/login")
+@auth_router.post(
+    "/login",
+    dependencies=[Depends(auth_middleware)],
+)
 async def login(
     data: LoginRequestDto,
     svc: SignupService = Depends(get_signup_svc),
