@@ -1,6 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr, Field, field_validator
-
+import re
+from src.exceptions.user_already_exist import UserAlreadyExistsException
+from src.dependencies.token import get_token_service
+from src.service.token import TokenService
+from src.dependencies.jwt import get_jwt_service
+from src.service.jwt import JWTPayload, JWTService
+from src.exceptions.user_not_found import UserNotFoundException
+from src.dto.user import AuthResponseDto, LoginRequestDto, UserResponseDto
+from src.service.sign_up import SignupService
 from src.dependencies.auth import get_signup_svc
 from src.dependencies.jwt import get_jwt_service
 from src.dependencies.token import get_token_service
@@ -14,6 +22,9 @@ from src.service.token import TokenService
 auth_router = APIRouter(prefix="/auth")
 
 
+from pydantic import BaseModel, field_validator
+
+
 class RegisterRequestDto(BaseModel):
     username: str = Field(min_length=5, max_length=30)
     email: EmailStr
@@ -22,15 +33,29 @@ class RegisterRequestDto(BaseModel):
     @field_validator("password")
     @classmethod
     def validate_password(cls, value: str):
-        if len(value) < 12:
-            raise ValueError("Password must be at least 12 characters")
 
-        special_symbols = f"!@#$%^&*()_+-=[]|;:,?"
+        # минимум 2 заглавные буквы
+        uppercases = re.findall(r"[A-Z]", value)
 
-        if not any(char in special_symbols for char in value):
-            raise ValueError("Password must contain special symbol")
+        if len(uppercases) < 2:
+            raise ValueError(
+                "Password must contain at least 2 uppercase letters"
+            )
+
+        # минимум 1 цифра
+        if not re.search(r"\d", value):
+            raise ValueError(
+                "Password must contain at least 1 number"
+            )
+
+        # минимум 1 буква
+        if not re.search(r"[a-zA-Z]", value):
+            raise ValueError(
+                "Password must contain letters"
+            )
 
         return value
+    
 
 
 class RegisterResponseDto(BaseModel):
