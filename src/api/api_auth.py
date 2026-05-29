@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr, Field, field_validator
 import re
+from src.middlewares.auth import admin_required, auth_middleware
 from src.exceptions.user_already_exist import UserAlreadyExistsException
 from src.dependencies.token import get_token_service
 from src.service.token import TokenService
@@ -95,7 +96,7 @@ async def register(
         raise HTTPException(status_code=409, detail=str(e))
 
 
-@auth_router.post("/login")
+@auth_router.post("/login", dependencies = [Depends(auth_middleware)])
 async def login(
     data: LoginRequestDto,
     svc: SignupService = Depends(get_signup_svc),
@@ -125,3 +126,13 @@ async def login(
 
     except UserNotFoundException as a:
         raise HTTPException(status_code=409, detail=str(a))
+    
+
+
+@auth_router.get("/admin")
+async def admin_panel(
+    _: None = Depends(admin_required)
+):
+    return {
+        "message": "Welcome admin"
+    }
