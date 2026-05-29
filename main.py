@@ -1,13 +1,14 @@
 import time
 
-from fastapi import FastAPI, Request, Response
+from fastapi import Depends, FastAPI, Request, Response
+from fastapi.security import HTTPBearer
 
 from src.api import router
 from src.database.db import init_db
-from fastapi import  Request, Response
-import time
 
-app = FastAPI()
+security = HTTPBearer(auto_error=False)
+
+app = FastAPI(dependencies=[Depends(security)])
 app.include_router(router)
 
 
@@ -28,7 +29,7 @@ async def startup():
 
 
 @app.middleware("http")
-async def test_middleware(request: Request,call_next) -> Response:
+async def test_middleware(request: Request, call_next) -> Response:
     start_time = time.time()
 
     response = await call_next(request)
@@ -36,12 +37,6 @@ async def test_middleware(request: Request,call_next) -> Response:
     end_time = time.time()
     process_time = (end_time - start_time) * 1000
 
-    print(
-        f"{request.method} "
-        f"{request.url.path} - "
-        f"{process_time:.0f}ms"
-    )
+    print(f"{request.method} {request.url.path} - {process_time:.0f}ms")
 
     return response
-
-

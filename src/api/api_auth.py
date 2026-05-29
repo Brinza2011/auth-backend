@@ -2,31 +2,19 @@ import re
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr, Field, field_validator
-import re
-from src.middlewares.auth import admin_required, auth_middleware
-from src.exceptions.user_already_exist import UserAlreadyExistsException
-from src.dependencies.token import get_token_service
-from src.service.token import TokenService
-from src.dependencies.jwt import get_jwt_service
-from src.service.jwt import JWTPayload, JWTService
-from src.exceptions.user_not_found import UserNotFoundException
-from src.dto.user import AuthResponseDto, LoginRequestDto, UserResponseDto
-from src.service.sign_up import SignupService
+
 from src.dependencies.auth import get_signup_svc
 from src.dependencies.jwt import get_jwt_service
 from src.dependencies.token import get_token_service
 from src.dto.user import AuthResponseDto, LoginRequestDto, UserResponseDto
 from src.exceptions.user_already_exist import UserAlreadyExistsException
 from src.exceptions.user_not_found import UserNotFoundException
-from src.middelwares.auth import auth_middleware
+from src.middlewares.auth import auth_middleware, auth_required
 from src.service.jwt import JWTPayload, JWTService
 from src.service.sign_up import SignupService
 from src.service.token import TokenService
 
 auth_router = APIRouter(prefix="/auth")
-
-
-from pydantic import BaseModel, field_validator
 
 
 class RegisterRequestDto(BaseModel):
@@ -92,7 +80,7 @@ async def register(
         raise HTTPException(status_code=409, detail=str(e))
 
 
-@auth_router.post("/login", dependencies = [Depends(auth_middleware)])
+@auth_router.post("/login", dependencies=[Depends(auth_middleware)])
 async def login(
     data: LoginRequestDto,
     svc: SignupService = Depends(get_signup_svc),
@@ -122,13 +110,8 @@ async def login(
 
     except UserNotFoundException as a:
         raise HTTPException(status_code=409, detail=str(a))
-    
 
 
-@auth_router.get("/admin")
-async def admin_panel(
-    _: None = Depends(admin_required)
-):
-    return {
-        "message": "Welcome admin"
-    }
+@auth_router.get("/admin", dependencies=[Depends(auth_required)])
+async def admin_panel():
+    return {"message": "Welcome admin"}
