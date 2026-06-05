@@ -1,50 +1,38 @@
-from fastapi import Depends, HTTPException, Header, Request
-from src.dependencies.jwt import get_jwt_service
-from src.service.jwt import JWTService
+# from fastapi import Depends, Header, HTTPException
 
-
-async def auth_middleware(request: Request) -> None:
-    print(request.base_url)
+# from src.dependencies.jwt import get_jwt_service
+# from src.service.jwt import JWTService
 
 
 # async def auth_required(
-#     request: Request,    
-#     x_role: str = Header(),
-#     svc: JWTService = Depends(get_jwt_service)
+#     authorization: str = Header(), jwt_svc: JWTService = Depends(get_jwt_service)
 # ) -> None:
-    
-#     authorization = request.headers.get("Authorization")
-#     print(authorization)
 
-#     if not authorization:
-#         raise HTTPException(status_code=401, detail="Authorization header missing")
+#     token = authorization.replace("Bearer", " ").strip()  # не трогать пробел
 
-#     x_role_modify = x_role.strip().upper()
+#     is_valid = jwt_svc.verify_token(token)
+#     if not is_valid:
+#         raise HTTPException(status_code=401, detail="Invalid token")
 
-#     if x_role_modify != "ADMIN":
-#         raise HTTPException(
-#             status_code=403,
-#             detail="Access denied"
-#         )
-    
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+from src.dependencies.jwt import get_jwt_service
+from src.service.jwt import JWTService
+
+security = HTTPBearer()
+
 
 async def auth_required(
-    authorization: str = Header(),
-    jwt_svc: JWTService = Depends(get_jwt_service)
-):
-    print(authorization)
-    token = authorization.replace("Bearer", " ").strip() #не трогать пробел
-    print(token)
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    jwt_svc: JWTService = Depends(get_jwt_service),
+) -> None:
+    token = credentials.credentials
 
-    try:
-        payload = jwt_svc.decode_token(token)
-
-        print(payload)
-
-        return payload
-
-    except Exception:
+    if not jwt_svc.verify_token(token):
         raise HTTPException(
-            status_code=401,
-            detail="Invalid token"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
         )
