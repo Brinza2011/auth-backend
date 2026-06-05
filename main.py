@@ -1,13 +1,15 @@
 import time
-
-from fastapi import FastAPI, Request, Response
-
+from fastapi import Depends, FastAPI, Request, Response
+from fastapi.security import HTTPBearer
 from src.api import router
 from src.database.db import init_db
 from fastapi import  Request, Response
-import time
 
-app = FastAPI()
+
+security = HTTPBearer(auto_error=False)
+
+app = FastAPI(dependencies=[Depends(security)])
+
 app.include_router(router)
 
 

@@ -3,7 +3,7 @@ import re
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr, Field, field_validator
 import re
-from src.middlewares.auth import admin_required, auth_middleware
+from src.middlewares.auth import auth_required, auth_middleware
 from src.exceptions.user_already_exist import UserAlreadyExistsException
 from src.dependencies.token import get_token_service
 from src.service.token import TokenService
@@ -18,7 +18,7 @@ from src.dependencies.token import get_token_service
 from src.dto.user import AuthResponseDto, LoginRequestDto, UserResponseDto
 from src.exceptions.user_already_exist import UserAlreadyExistsException
 from src.exceptions.user_not_found import UserNotFoundException
-from src.middelwares.auth import auth_middleware
+from src.middlewares.auth import auth_middleware
 from src.service.jwt import JWTPayload, JWTService
 from src.service.sign_up import SignupService
 from src.service.token import TokenService
@@ -109,8 +109,6 @@ async def login(
 
         a = jwt_svc.encode_token(payload)
 
-        print(jwt_svc.decode_token(a))
-
         access_token = token_svc.access_token(payload)
         refresh_token = token_svc.refresh_token(payload)
 
@@ -125,10 +123,8 @@ async def login(
     
 
 
-@auth_router.get("/admin")
-async def admin_panel(
-    _: None = Depends(admin_required)
-):
-    return {
-        "message": "Welcome admin"
-    }
+# @auth_router.get("/admin", dependencies = [Depends(auth_required)])
+# async def auth_required():
+#     return {
+#         "message": "Welcome admin"
+#     }
