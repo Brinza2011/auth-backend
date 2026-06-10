@@ -55,3 +55,9 @@ class SignupService:
             )
 
         return user
+    
+    async def delete_user(self, user_id: int) -> None:
+
+        
+
+        await self.repo.delete_user(user_id)

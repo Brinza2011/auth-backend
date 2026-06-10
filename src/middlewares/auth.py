@@ -1,50 +1,97 @@
-from fastapi import Depends, HTTPException, Header, Request
+from fastapi import Depends, HTTPException, Header
+from src.dependencies.jwt import get_jwt_service
+from src.service.jwt import JWTService
+    
+from enum import Enum
+from typing import List, Optional, Union
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from src.dependencies.jwt import get_jwt_service
 from src.service.jwt import JWTService
 
 
-async def auth_middleware(request: Request) -> None:
-    print(request.base_url)
+class UserRole(str, Enum):
+    ADMIN = "ADMIN"
+    USER = "USER"
+
+security = HTTPBearer()
 
 
-# async def auth_required(
-#     request: Request,    
-#     x_role: str = Header(),
-#     svc: JWTService = Depends(get_jwt_service)
-# ) -> None:
+def require_roles(required_roles: Optional[List[Union[UserRole, str]]] = None):
+    """
+    Фабрика зависимостей для проверки JWT токена и ролей пользователя
     
-#     authorization = request.headers.get("Authorization")
-#     print(authorization)
-
-#     if not authorization:
-#         raise HTTPException(status_code=401, detail="Authorization header missing")
-
-#     x_role_modify = x_role.strip().upper()
-
-#     if x_role_modify != "ADMIN":
-#         raise HTTPException(
-#             status_code=403,
-#             detail="Access denied"
-#         )
+    Args:
+        required_roles: Список ролей, которые имеют доступ к эндпоинту.
+                       Если None, то проверяется только валидность токена.
     
+    Usage:
+        @router.get("/users", dependencies=[Depends(require_roles([UserRole.ADMIN]))])
+        async def get_users():
+            pass
+        
+        @router.get("/profile", dependencies=[Depends(require_roles())])
+        async def get_profile():
+            pass
+    """
+    
+    async def auth_with_roles(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
+        jwt_svc: JWTService = Depends(get_jwt_service),
+    ) -> dict:
+        """
+        Возвращает данные пользователя из токена для дальнейшего использования
+        """
+        token = credentials.credentials
+        
+        # 1. Проверяем валидность токена
+        if not jwt_svc.verify_token(token):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        # 2. Получаем данные пользователя из токена
+        user_data = jwt_svc.decode_token(token)  # нужно реализовать в JWTService
+        if not user_data:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+            )
+        
+        user_role = user_data.get("role")
+        user_id = user_data.get("sub")
+        print(user_role)
 
-async def auth_required(
-    authorization: str = Header(),
-    jwt_svc: JWTService = Depends(get_jwt_service)
-):
-    print(authorization)
-    token = authorization.replace("Bearer", " ").strip() #не трогать пробел
-    print(token)
+        # 3. Проверяем роли (если требуются)
+        if required_roles:
+            # Конвертируем строковые роли в Enum для сравнения
+            required_roles_enum = [
+                role if isinstance(role, UserRole) else UserRole(role) 
+                for role in required_roles
+            ]
+            
+            if user_role not in [role.value for role in required_roles_enum]:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Access denied. Required roles: {', '.join(required_roles_enum)}",
+                )
+        
+        # Возвращаем данные пользователя для использования в эндпоинтах
+        return {
+            "user_id": user_id,
+            "role": user_role,
+            **user_data
+        }
+    
+    return auth_with_roles
 
-    try:
-        payload = jwt_svc.decode_token(token)
 
-        print(payload)
+auth_required = require_roles()  
+admin_required = require_roles([UserRole.ADMIN])
+user_required = require_roles([UserRole.USER])
 
-        return payload
 
-    except Exception:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid token"
-        )

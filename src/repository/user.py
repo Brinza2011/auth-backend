@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from src.exceptions.user_not_found import UserNotFoundException
 from src.database.db import SessionType
 from src.models.user import UserModel
 
@@ -57,14 +58,26 @@ class UserRepository:
         user = result.scalar_one_or_none()
 
         return user
+
+
     
+    async def get_user_by_id(self, user_id: int) -> UserModel | None:
 
-    async def get_by_email(self, email: str):
-
-        stmt = select(UserModel).where(
-        UserModel.email == email
-    )
+        stmt = select(UserModel).where(UserModel.id == user_id)
 
         result = await self.session.execute(stmt)
 
-        return result.scalar_one_or_none()
+        user = result.scalar_one_or_none()
+
+        return user
+
+    
+    
+    async def delete_user(self, user_id: int) -> None:
+        user = await self.get_user_by_id(user_id)
+
+        if not user:
+            raise UserNotFoundException()
+
+        await self.session.delete(user)
+        await self.session.commit()

@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends
-
 from src.middlewares.auth import auth_required
 from src.dependencies.user import get_user_svc
 from src.service.user import UserService
