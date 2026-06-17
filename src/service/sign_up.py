@@ -1,5 +1,6 @@
 
 from fastapi import Depends
+from src.exceptions.user_dont_delete_self import DontDeleteYourSelf
 from src.middlewares.current_user import get_current_user
 from src.service.jwt import JWTPayload
 from src.exceptions.user_not_found import UserNotFoundException
@@ -64,12 +65,8 @@ class SignupService:
     async def dont_delete_yourself(
         self,
         id: str,
-        user: JWTPayload = Depends(get_current_user)
+        sub: str
     ) -> None:
-
-        print(id)
-        print("sub")
-        if user.get("sub") == id:
-            raise ValueError(
-                "You cannot delete yourself"
-            )
+        
+        if sub == id:
+            raise DontDeleteYourSelf("You can't delete yourself")
