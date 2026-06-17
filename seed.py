@@ -24,7 +24,7 @@ async def users_mock():
             username = "User2",
             password = "134488",
             email = "Tasyasuper34@gmail.com",
-            role = "USER"
+            role = "ADMIN"
         )
 
         andrey = UserModel(

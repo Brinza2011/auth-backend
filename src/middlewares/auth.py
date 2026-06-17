@@ -38,8 +38,8 @@ from src.service.jwt import JWTPayload, JWTService
 
 
 class UserRole(str, Enum):
-    ADMIN = "admin"
-    USER = "user"
+    ADMIN = "ADMIN"
+    USER = "USER"
 
 
 security = HTTPBearer()
@@ -111,5 +111,5 @@ def require_roles(required_roles: Optional[List[Union[UserRole, str]]] = None):
 
 
 auth_required = require_roles()
-require_admin = require_roles([UserRole.ADMIN])
-require_user = require_roles([UserRole.USER])
+admin_required = require_roles([UserRole.ADMIN])
+user_required = require_roles([UserRole.USER])

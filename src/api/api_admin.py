@@ -1,26 +1,47 @@
 from fastapi import APIRouter, Depends
 
-from src.dependencies.user import get_user_svc
-from src.middlewares.auth import require_admin
+from src.exceptions.user_dont_delete_self import DontDeleteYourSelf
 from src.middlewares.current_user import get_current_user
 from src.service.jwt import JWTPayload
-from src.service.user import UserService
+from src.middlewares.auth import admin_required
+from src.dependencies.auth import get_signup_svc
+from src.service.signup import SignupService
 
-admin_router = APIRouter(prefix="/admin")
+
+admin_router = APIRouter(prefix="/auth")
 
 
-@admin_router.get("/users", dependencies=[Depends(require_admin)])
-async def get_users(service: UserService = Depends(get_user_svc)):
-    users = await service.get_users()
+@admin_router.delete("/api/v1/admin/users/{id}", dependencies=[Depends(admin_required)])
+async def delete_user(
+    id: str,
+    svc: SignupService = Depends(get_signup_svc),
+    user: JWTPayload = Depends(get_current_user)
+):
 
-    return [
-        {"id": user.id, "name": user.username, "email": user.email} for user in users
-    ]
+    try:
+
+        await svc.dont_delete_yourself(id, user.get("sub"))
+        await svc.delete_user(id)
+        return {
+            "message": f"User {id} deleted"
+        }
+
+    except DontDeleteYourSelf as e:
+        print(e)
+        return{
+            "message": "You can't delete yourself"
+        }
 
 
 @admin_router.get("/test")
-async def test(user: JWTPayload = Depends(get_current_user)):
+async def test(
+    id: str,
+    user: JWTPayload = Depends(get_current_user)
+):
+    print(type(user.get("sub")))
+    print(user.get("sub") == id)
+
     if user.get("sub") == id:
-        return {"message": "Ты не можешь себя удалить"}
+        return{"You can't delete yourself"}
 
     return user
