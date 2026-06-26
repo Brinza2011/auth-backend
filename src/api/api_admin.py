@@ -33,15 +33,3 @@ async def delete_user(
         }
 
 
-@admin_router.get("/test")
-async def test(
-    id: str,
-    user: JWTPayload = Depends(get_current_user)
-):
-    print(type(user.get("sub")))
-    print(user.get("sub") == id)
-
-    if user.get("sub") == id:
-        return{"You can't delete yourself"}
-
-    return user
