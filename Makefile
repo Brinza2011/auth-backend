@@ -6,3 +6,9 @@ dev:
 
 check:
 	uv run mypy .
+
+
+ci:
+	uv run ruff check # linter
+	uv run ruff format # formatter
+	uv run mypy . # type checker

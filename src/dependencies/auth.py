@@ -6,9 +6,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def get_signup_svc(
-    session: AsyncSession = Depends(get_session)
-) -> SignupService:
+async def get_signup_svc(session: AsyncSession = Depends(get_session)) -> SignupService:
     """FastAPI dependency для UserService"""
 
     repo = UserRepository(session)

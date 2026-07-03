@@ -3,7 +3,7 @@ from fastapi import Depends, FastAPI, Request, Response
 from fastapi.security import HTTPBearer
 from src.api import router
 from src.database.db import init_db
-from fastapi import  Request, Response
+from fastapi import Request, Response
 
 
 security = HTTPBearer(auto_error=False)

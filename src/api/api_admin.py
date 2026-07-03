@@ -15,21 +15,14 @@ admin_router = APIRouter(prefix="/auth")
 async def delete_user(
     id: str,
     svc: SignupService = Depends(get_signup_svc),
-    user: JWTPayload = Depends(get_current_user)
+    user: JWTPayload = Depends(get_current_user),
 ):
 
     try:
-
         await svc.dont_delete_yourself(id, user.get("sub"))
         await svc.delete_user(id)
-        return {
-            "message": f"User {id} deleted"
-        }
+        return {"message": f"User {id} deleted"}
 
     except DontDeleteYourSelf as e:
         print(e)
-        return{
-            "message": "You can't delete yourself"
-        }
-
-
+        return {"message": "You can't delete yourself"}
