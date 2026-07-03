@@ -8,8 +8,15 @@ class UserRepository:
         self.session: SessionType = session
 
 
-    async def find_all(self):
-        stmt = select(UserModel)
+    async def find_all(self, limit: int=10, offset: int=1):
+        stmt = (
+            select(UserModel)
+            .order_by(UserModel.id)
+            # .offset((offset - 1) * limit)
+            .offset(offset)
+            .limit(limit)
+        )
+
         result = await self.session.execute(stmt)
         return result.scalars().all()
     

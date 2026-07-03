@@ -19,7 +19,7 @@ SessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(
     expire_on_commit=False,
 )
 
-SessionType = Session
+SessionType = AsyncSession
 
 
 class Base(DeclarativeBase):
