@@ -3,15 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Session
 
 
 DATABASE_URL = "sqlite+aiosqlite:///./users.db"
 
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=True
-)
+engine = create_async_engine(DATABASE_URL, echo=True)
 
 SessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(
     bind=engine,
@@ -34,12 +30,10 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
             await session.close()
 
 
-
 async def init_db():
     async with engine.begin() as conn:
-        await conn.run_sync(
-            Base.metadata.create_all
-        )
+        await conn.run_sync(Base.metadata.create_all)
+
 
 if __name__ == "__main__":
     asyncio.run(init_db())

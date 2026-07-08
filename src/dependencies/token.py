@@ -1,4 +1,3 @@
-
 from src.service.token import TokenService
 from src.dependencies.jwt import get_jwt_service
 

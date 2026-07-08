@@ -2,8 +2,7 @@ import asyncio
 
 from src.dependencies.token import get_token_service
 from src.dependencies.jwt import get_jwt_service
-from src.dependencies.token import get_token_service
-from src.service.jwt import JWTPayload, JWTService
+from src.service.jwt import JWTPayload
 
 
 async def main():
@@ -20,8 +19,8 @@ async def main():
     token_svc = await get_token_service()
     payload: JWTPayload = {"sub": "1", "role": "admin", "exp": None}
 
-    access_token = token_svc.access_token(payload) #5 minutes
-    refresh_token = token_svc.refresh_token(payload) #15 minutes
+    access_token = token_svc.access_token(payload)  # 5 minutes
+    refresh_token = token_svc.refresh_token(payload)  # 15 minutes
 
     print(access_token)
     print(refresh_token)
