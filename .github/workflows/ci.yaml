@@ -1,4 +1,3 @@
-
 name: CI
 
 on: [push, pull_request]
@@ -26,4 +25,7 @@ jobs:
         run: uv run ruff format
 
       - name: Run type checker
-        run: uv run mypy .  
+        run: uv run mypy .
+
+      - name: Run dead code detector
+        run: uv run vulture .
