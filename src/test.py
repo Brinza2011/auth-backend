@@ -2,7 +2,7 @@ import asyncio
 
 from src.dependencies.jwt import get_jwt_service
 from src.dependencies.token import get_token_service
-from src.service.jwt import JWTPayload, JWTService
+from src.service.jwt import JWTPayload
 
 
 async def main():
@@ -41,5 +41,5 @@ def test_a():
     print("HHHHHHH")
 
 
-def test_b() -> int:
+def test_b() -> str:
     return "Hello world !"

@@ -1,5 +1,3 @@
-from ast import arg
-
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
@@ -44,13 +42,13 @@ async def get_users(
     return UserListDto(items=dtos, total=len(dtos), limit=limit, offset=offset)
 
 
-# -------------------------------------
+# -------------------------------------------------------------------------------------------------
+
 
 class ProductRepository:
-    def __init__(self, product: list[dict]):
-        self.product = product
+    async def get_products(self):
 
-        product = [
+        return [
             {"id": 1, "description": "sliva"},
             {"id": 2, "description": "perec"},
             {"id": 3, "description": "apelsin"},
@@ -63,36 +61,20 @@ class ProductRepository:
             {"id": 10, "description": "baklajan"},
         ]
 
-    async def product_repo(limit: int = 10, offset: int = 1, product: str) :
-        ovoshi = product[offset : offset + limit]
-        return ovoshi
-
 
 class ProductService:
     def __init__(self, repo: ProductRepository):
         self.repo = repo
 
+    async def get_products(self, limit: int, offset: int):
+        products = await self.repo.get_products()
 
-    async def get_product_service(self,limit: int = 10, offset: int = 1):
-        return await self.repo.product_repo(limit, offset)
+        return products[offset : offset + limit]
 
 
 @users_router.get("/products")
 async def get_items(limit: int = 10, offset: int = 1):
+    repo = ProductRepository()
+    service = ProductService(repo)
 
-    product = [
-        {"id": 1, "description": "sliva"},
-        {"id": 2, "description": "perec"},
-        {"id": 3, "description": "apelsin"},
-        {"id": 4, "description": "kartoshka"},
-        {"id": 5, "description": "ogurec"},
-        {"id": 6, "description": "klubnika"},
-        {"id": 7, "description": "grusha"},
-        {"id": 8, "description": "vinograd"},
-        {"id": 9, "description": "pomidor"},
-        {"id": 10, "description": "baklajan"},
-    ]
-
-    ovoshi = product[offset : offset + limit]
-
-    return ovoshi
+    return await service.get_products(limit, offset)

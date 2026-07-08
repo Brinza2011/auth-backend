@@ -1,7 +1,4 @@
-from fastapi import Depends
 from src.exceptions.user_dont_delete_self import DontDeleteYourSelf
-from src.middlewares.current_user import get_current_user
-from src.service.jwt import JWTPayload
 from src.exceptions.user_not_found import UserNotFoundException
 from src.exceptions.user_already_exist import UserAlreadyExistsException
 from src.models.user import UserModel

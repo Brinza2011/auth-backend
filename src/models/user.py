@@ -1,7 +1,4 @@
-from sqlalchemy import Column, Integer, String
-
 from src.database.db import Base
-
 
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import Integer

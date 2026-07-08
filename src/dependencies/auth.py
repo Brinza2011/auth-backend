@@ -1,7 +1,6 @@
 from src.service.sign_up import SignupService
 from src.database.db import get_session
 from src.repository.user import UserRepository
-from src.service.user import UserService
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 

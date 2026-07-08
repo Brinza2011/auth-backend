@@ -60,7 +60,7 @@ async def register(
             username=data.username, password=data.password, email=data.email
         )
 
-        payload: JWTPayload = {"sub": user.id, "role": user.role}
+        payload: JWTPayload = {"sub": str(user.id), "role": user.role}
         access_token = token_svc.access_token(payload)
         refresh_token = token_svc.refresh_token(payload)
 
@@ -91,7 +91,7 @@ async def login(
         if user.password != data.password:
             raise HTTPException(status_code=401, detail="Неправильный пароль")
 
-        payload: JWTPayload = {"sub": user.id, "role": user.role}
+        payload: JWTPayload = {"sub": user.id, "role": user.role, "exp": user.exp}
 
         a = jwt_svc.encode_token(payload)
 
