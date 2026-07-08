@@ -1,13 +1,12 @@
 from datetime import UTC, datetime, timedelta
-from typing import Optional, TypedDict
-
+from typing import NotRequired, TypedDict
 import jwt
 
 
 class JWTPayload(TypedDict):
     sub: str
     role: str
-    exp: Optional[int]
+    exp: NotRequired[int]
 
 
 class JWTService:

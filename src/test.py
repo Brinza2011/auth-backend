@@ -41,5 +41,5 @@ def test_a():
     print("HHHHHHH")
 
 
-def test_b() -> int:
+def test_b() -> str:
     return "Hello world !"

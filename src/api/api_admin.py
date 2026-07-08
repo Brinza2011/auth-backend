@@ -5,7 +5,7 @@ from src.middlewares.current_user import get_current_user
 from src.service.jwt import JWTPayload
 from src.middlewares.auth import admin_required
 from src.dependencies.auth import get_signup_svc
-from src.service.signup import SignupService
+from src.service.sign_up import SignupService
 
 
 admin_router = APIRouter(prefix="/auth")
@@ -20,7 +20,7 @@ async def delete_user(
 
     try:
         await svc.dont_delete_yourself(id, user.get("sub"))
-        await svc.delete_user(id)
+        await svc.delete_user(int(id))
         return {"message": f"User {id} deleted"}
 
     except DontDeleteYourSelf as e:
