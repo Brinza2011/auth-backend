@@ -27,3 +27,6 @@ jobs:
 
       - name: Run type checker
         run: uv run mypy .  
+
+      - name: Run dead code detector
+        run: uv run vulture .

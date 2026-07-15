@@ -13,7 +13,7 @@ app = FastAPI(dependencies=[Depends(security)])
 app.include_router(router)
 
 
-@app.middleware("http")
+@app.middleware("http")# noqa
 async def test_middleware(request: Request, call_next) -> Response:
     start_time = time.time()
 
@@ -29,7 +29,7 @@ async def startup():
     await init_db()
 
 
-@app.middleware("http")
+@app.middleware("http") # noqa
 async def request_middleware(request: Request, call_next) -> Response:
     start_time = time.time()
 

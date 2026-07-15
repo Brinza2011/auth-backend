@@ -12,3 +12,4 @@ ci:
 	uv run ruff check # linter
 	uv run ruff format # formatter
 	uv run mypy . # type checker
+	uv run vulture . / folder/file #dead code detector
