@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends
-
 from src.exceptions.user_dont_delete_self import DontDeleteYourSelf
 from src.middlewares.current_user import get_current_user
 from src.service.jwt import JWTPayload
