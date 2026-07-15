@@ -6,12 +6,11 @@ dist/
 wheels/
 *.egg-info
 
+.mypy_cache/
+
 # Virtual environments
 .venv
 uv.lock
 .python-version
-<<<<<<< HEAD
 .ruff_cache
-=======
 .ruff_cache
->>>>>>> origin

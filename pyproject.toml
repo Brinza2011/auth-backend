@@ -20,3 +20,15 @@ dev = [
     "ruff>=0.15.20",
     "vulture>=2.16",
 ]
+
+
+[tool.vulture]
+exclude = [
+    ".venv/",
+    "venv/",
+    "migrations/",
+    "__pycache__/",
+    "build/",
+    "dist/",
+]
+min_confidence = 80

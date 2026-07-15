@@ -30,16 +30,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-def test_a():
-    print("Hello")
-
-    if True:
-        pass
-
-    print("HHHHHHH")
-
-
-def test_b() -> str:
-    return "Hello world !"

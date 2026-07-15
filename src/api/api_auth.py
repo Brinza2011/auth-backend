@@ -1,4 +1,5 @@
 import re
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
@@ -22,7 +23,7 @@ class RegisterRequestDto(BaseModel):
 
     @field_validator("password")
     @classmethod
-    def validate_password(cls, value: str):
+    def validate_password(_cls, value: str):
 
         # минимум 2 заглавные буквы
         uppercases = re.findall(r"[A-Z]", value)
