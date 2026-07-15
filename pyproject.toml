@@ -31,4 +31,3 @@ exclude = [
     "dist/",
 ]
 min_confidence = 80
-

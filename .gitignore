@@ -6,10 +6,11 @@ dist/
 wheels/
 *.egg-info
 
-.mypy_cashe/
+.mypy_cache/
 
 # Virtual environments
 .venv
 uv.lock
 .python-version
+.ruff_cache
 .ruff_cache
