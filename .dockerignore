@@ -1,0 +1,8 @@
+.mypy_cache
+.venv
+__pycache__
+.github/
+.ruff_cache
+.gitignore
+README.md
+users.db
