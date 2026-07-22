@@ -28,4 +28,4 @@ WORKDIR /app
 
 COPY --from=builder /app /app
 
-CMD ["uv", "run", "uvicorn", "main:app"]
+CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0"]
