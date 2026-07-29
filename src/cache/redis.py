@@ -1,5 +1,3 @@
-
-
 import json
 import redis
 
@@ -24,3 +22,11 @@ class RedisCache:
             json.dumps(value),
             ex=ex,
         )
+
+
+redis_cache = RedisCache(
+    host="127.0.0.1",
+    port=6379,
+    db=0,
+    password="12345678abcd",
+)
