@@ -34,12 +34,11 @@ async def delete_user(
 
 @admin_router.get("/users/admin")
 async def get_admin_users(
-    svc: UserService = Depends(get_user_svc),
-    cache: RedisCache = Depends(get_cache)
+    svc: UserService = Depends(get_user_svc), cache: RedisCache = Depends(get_cache)
 ):
     cache = redis_cache.get("admin_users")
     if cache:
-        return json.loads(cache)
+        return cache
 
     users = await svc.repo.find_all()
 

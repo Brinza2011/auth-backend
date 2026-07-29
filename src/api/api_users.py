@@ -31,7 +31,7 @@ async def get_users(
     service: UserService = Depends(get_user_svc),
     cache: RedisCache = Depends(get_cache),
     limit: int = 1000,
-    offset: int = 1
+    offset: int = 1,
 ) -> UserListDto:
 
     key = f"users_{offset}_{limit}"

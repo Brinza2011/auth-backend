@@ -1,6 +1,3 @@
-
-
-
 from src.cache.redis import RedisCache
 
 
