@@ -1,6 +1,5 @@
 import json
 from fastapi import APIRouter, Depends
-from src.cache import redis
 from src.cache.redis import RedisCache, redis_cache
 from src.dependencies.cache import get_cache
 from src.dependencies.user import get_user_svc
