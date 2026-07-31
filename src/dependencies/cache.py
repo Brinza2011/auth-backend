@@ -6,5 +6,5 @@ def get_cache() -> RedisCache:
         host="localhost",
         port=6379,
         db=0,
-        password="1234567a",
+        password="12345678abcd",
     )
