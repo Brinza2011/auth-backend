@@ -1,5 +1,5 @@
 from src.cache.redis import RedisCache
-from src.config import Settings
+from src.config.settings import Settings
 
 settings = Settings()
 
