@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from src.cache.redis import RedisCache
 from src.dependencies.cache import get_cache
 from src.dependencies.user import get_user_svc
-from src.ratelimiter.ratelimiter import RateLimiter, rate_limiter
+from src.ratelimiter.ratelimiter import RateLimiter
 from src.service.user import UserService
 
 users_router = APIRouter()
@@ -26,7 +26,7 @@ class UserListDto(PagginationList[list[dict]]):
 
 @users_router.get(
     "/user",
-    dependencies = [Depends(RateLimiter("minute", 10))]
+    dependencies=[Depends(RateLimiter("minute", 10))],
     # dependencies=[Depends(auth_required), Depends(admin_required)] make this import
 )
 async def get_users(
