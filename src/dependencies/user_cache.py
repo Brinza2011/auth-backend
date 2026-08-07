@@ -8,8 +8,7 @@ from src.repository.user import UserRepository
 
 
 async def get_user_cache(
-    session: AsyncSession = Depends(get_session),
-    cache: RedisCache = Depends(get_cache)
+    session: AsyncSession = Depends(get_session), cache: RedisCache = Depends(get_cache)
 ) -> UserCacheService:
     repo = UserRepository(session)
 

@@ -15,6 +15,7 @@ requests = "10 per"
 
 rate_rule = parse(f"{requests} {window}")
 
+
 def handle_request(user_id: str) -> bool:
     if limiter.hit(rate_rule, user_id):
         print(f"Request allowed for user {user_id}")
@@ -22,7 +23,7 @@ def handle_request(user_id: str) -> bool:
     else:
         print(f"429 Too many requests for user {user_id}")
         return False
-    
+
 
 def rate_limiter(window: str, requests: int):
     def decorator(func):
@@ -33,17 +34,18 @@ def rate_limiter(window: str, requests: int):
                 return await func(*args, **kwargs)
             else:
                 raise HTTPException(
-                    status_code = status.HTTP_429_TOO_MANY_REQUESTS,
-                    detail = "Too many requests"
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail="Too many requests",
                 )
+
         return wrapper
+
     return decorator
 
 
 # @ratelimiter(window = "1 minute", request = 10)
 # @router.get("/users")
 # async def all_users() -> :
-
 
 
 class RateLimiter:
@@ -53,7 +55,7 @@ class RateLimiter:
         self.rate_rule = parse(f"{limit} per {window}")
 
     async def __call__(self, request: Request):
-        user_id = request.headers.get("user_id")
+        user_id = request.headers.get("user_id", "anonymous")
 
         if limiter.hit(self.rate_rule, user_id):
             stats = limiter.get_window_stats(
@@ -63,14 +65,10 @@ class RateLimiter:
 
             n = self.limit - stats.remaining
 
-            print(
-                f"user_id={user_id} "
-                f"сделал {n} запросов в {self.window}"
-            )
+            print(f"user_id={user_id} сделал {n} запросов в {self.window}")
             return
 
         raise HTTPException(
             status_code=429,
             detail="Too many requests",
         )
-

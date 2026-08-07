@@ -26,9 +26,9 @@ class UserListDto(PagginationList[list[dict]]):
 
 @users_router.get(
     "/user",
+    dependencies = [Depends(RateLimiter("minute", 10))]
     # dependencies=[Depends(auth_required), Depends(admin_required)] make this import
 )
-@rate_limiter(window = "1 minute", requests = 10)
 async def get_users(
     user_id: str = "5",
     service: UserService = Depends(get_user_svc),
@@ -67,11 +67,3 @@ async def get_users(
         limit=limit,
         offset=offset,
     )
-
-@users_router.get(
-    "/userrr",
-    dependencies=[Depends(RateLimiter("minute", 10))]
-)
-
-async def get_users():
-    return {"message": "OK"}
