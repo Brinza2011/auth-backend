@@ -1,4 +1,5 @@
 import json
+from telnetlib import TTYLOC
 import redis
 
 
@@ -22,3 +23,13 @@ class RedisCache:
             json.dumps(value),
             ex=ex,
         )
+
+    def hset(self, key: str, mapping: dict):
+        self._redis.hset(
+            key,
+            mapping=mapping,
+        )
+
+    def hget(self, key: str):
+        value = self._redis.hget(key)
+        return json.loads(value) if value else None
