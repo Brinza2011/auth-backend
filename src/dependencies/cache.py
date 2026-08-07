@@ -1,4 +1,7 @@
 from src.cache.redis import RedisCache
+from src.config.settings import Settings
+
+settings = Settings()
 
 
 def get_cache() -> RedisCache:
@@ -6,5 +9,5 @@ def get_cache() -> RedisCache:
         host="localhost",
         port=6379,
         db=0,
-        password="12345678abcd",
+        password=settings.redis_password,
     )
