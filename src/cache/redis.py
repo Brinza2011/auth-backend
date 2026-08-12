@@ -22,3 +22,6 @@ class RedisCache:
             json.dumps(value),
             ex=ex,
         )
+
+    def hset(self, key: str, mapping: dict, ex: int | None = 300):
+        self.__hset
