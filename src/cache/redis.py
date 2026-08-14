@@ -1,4 +1,3 @@
-from dataclasses import field
 import json
 import redis
 
