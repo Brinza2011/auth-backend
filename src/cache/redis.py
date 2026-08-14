@@ -1,5 +1,5 @@
+from dataclasses import field
 import json
-from telnetlib import TTYLOC
 import redis
 
 
@@ -24,12 +24,18 @@ class RedisCache:
             ex=ex,
         )
 
+    def delete(self, key: str):
+        self._redis.delete(key)
+
     def hset(self, key: str, mapping: dict):
         self._redis.hset(
             key,
             mapping=mapping,
         )
 
-    def hget(self, key: str):
-        value = self._redis.hget(key)
+    def hget(self, key: str, field: str):
+        value = self._redis.hget(key, field)
         return json.loads(value) if value else None
+
+    def hdel(self, key: str):
+        self._redis.hdel(key)
