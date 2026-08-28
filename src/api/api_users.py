@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-
+from src.middlewares.auth import auth_required
 from src.cache.redis import RedisCache
 from src.dependencies.cache import get_cache
 from src.dependencies.user import get_user_svc
@@ -25,9 +25,7 @@ class UserListDto(PagginationList[list[dict]]):
 
 
 @users_router.get(
-    "/user",
-    dependencies=[Depends(RateLimiter("minute", 10))],
-    # dependencies=[Depends(auth_required), Depends(admin_required)] make this import
+    "/user", dependencies=[Depends(RateLimiter("minute", 10)), Depends(auth_required)]
 )
 async def get_users(
     user_id: str = "5",

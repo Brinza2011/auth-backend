@@ -33,7 +33,11 @@ from typing import List, Optional, Union
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from src.cache.redis import RedisCache
+from src.dependencies.ban_user import get_ban_user_service
 from src.dependencies.jwt import get_jwt_service
+from src.dependencies.token import get_refresh_token_repo
+from src.service.ban import BanUserService
 from src.service.jwt import JWTPayload, JWTService
 
 
@@ -66,6 +70,8 @@ def require_roles(required_roles: Optional[List[Union[UserRole, str]]] = None):
     async def auth_with_roles(
         credentials: HTTPAuthorizationCredentials = Depends(security),
         jwt_svc: JWTService = Depends(get_jwt_service),
+        refresh_token_repo: RedisCache = Depends(get_refresh_token_repo),
+        ban_svc: BanUserService = Depends(get_ban_user_service),
     ) -> JWTPayload:
         """
         Возвращает данные пользователя из токена для дальнейшего использования
@@ -90,6 +96,21 @@ def require_roles(required_roles: Optional[List[Union[UserRole, str]]] = None):
 
         user_role = user_data.get("role")
         user_id = user_data.get("sub")
+
+        is_banned = await ban_svc.is_banned(user_id)
+
+        if is_banned:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="User is banned"
+            )
+
+        # refresh_token = await refresh_token_repo.get(user_id)
+
+        # if not refresh_token:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_401_UNAUTHORIZED,
+        #         detail="Refresh token not found"
+        #     )
 
         # 3. Проверяем роли (если требуются)
         if required_roles:
