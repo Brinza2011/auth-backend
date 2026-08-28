@@ -19,3 +19,6 @@ docker-build:
 
 docker-run:
 	docker run -p 8000:8000 auth-backend:latest
+
+
+#id 3 - AA1234 - ploves@gmail.com

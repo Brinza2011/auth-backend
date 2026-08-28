@@ -5,10 +5,12 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from src.dependencies.auth import get_signup_svc
 from src.dependencies.jwt import get_jwt_service
-from src.dependencies.token import get_token_service
+from src.dependencies.token import get_refresh_token_repo, get_token_service
 from src.dto.user import AuthResponseDto, LoginRequestDto, UserResponseDto
 from src.exceptions.user_already_exist import UserAlreadyExistsException
 from src.exceptions.user_not_found import UserNotFoundException
+from src.middlewares.current_user import get_current_user
+from src.repository.refresh_token import RefreshTokenRepository
 from src.service.jwt import JWTPayload, JWTService
 from src.service.sign_up import SignupService
 from src.service.token import TokenService
@@ -92,7 +94,7 @@ async def login(
         if user.password != data.password:
             raise HTTPException(status_code=401, detail="Неправильный пароль")
 
-        payload: JWTPayload = {"sub": user.id, "role": user.role, "exp": user.exp}
+        payload: JWTPayload = {"sub": user.id, "role": user.role, "exp": 30}
 
         a = jwt_svc.encode_token(payload)
 
@@ -107,3 +109,35 @@ async def login(
 
     except UserNotFoundException as a:
         raise HTTPException(status_code=409, detail=str(a))
+
+
+class RefreshRequestDto(BaseModel):
+    refresh_token: str
+
+
+@auth_router.post("/refresh")
+async def refresh(
+    data: RefreshRequestDto,
+    token_svc: TokenService = Depends(get_token_service),
+    user: JWTPayload = Depends(get_current_user),
+    refresh_token_repo: RefreshTokenRepository = Depends(get_refresh_token_repo),
+):
+    refresh_token = await refresh_token_repo.get(str(user["sub"]))
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+    if refresh_token["token"] != data.refresh_token:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+    await refresh_token_repo.delete(user["sub"])
+
+    payload: JWTPayload = {
+        "sub": user["sub"],
+        "role": user["role"],
+    }
+    access_token = token_svc.access_token(payload)
+    refresh_token = token_svc.refresh_token(payload)
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    }
